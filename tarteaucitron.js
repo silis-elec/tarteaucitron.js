@@ -1,7 +1,7 @@
 /*jslint browser: true, evil: true */
 
 var scripts = document.getElementsByTagName('script'),
-    path = scripts[scripts.length - 1].src.split('?')[0],
+    path = (document.currentScript || scripts[scripts.length - 1]).src.split('?')[0],
     tarteaucitronForceCDN = (tarteaucitronForceCDN === undefined) ? '' : tarteaucitronForceCDN,
     cdn = (tarteaucitronForceCDN === '') ? path.split('/').slice(0, -1).join('/') + '/' : tarteaucitronForceCDN,
     alreadyLaunch = (alreadyLaunch === undefined) ? 0 : alreadyLaunch,
@@ -23,7 +23,7 @@ var tarteaucitron = {
     "services": {},
     "added": [],
     "idprocessed": [],
-    "state": [],
+    "state": {},
     "launch": [],
     "parameters": {},
     "isAjax": false,
@@ -1810,7 +1810,7 @@ var tarteaucitron = {
     "getLanguage": function () {
         "use strict";
 
-        var availableLanguages = 'ar,bg,ca,cn,cs,da,de,et,el,en,es,fi,fr,hu,it,ja,lt,lv,nl,no,oc,pl,pt,ro,ru,se,sk,sv,tr,uk,vi,zh',
+        var availableLanguages = 'ar,bg,ca,cn,cs,da,de,et,el,en,es,fi,fr,hu,it,ja,lb,lt,lv,nl,no,oc,pl,pt,ro,ru,se,sk,sv,tr,uk,vi,zh',
             defaultLanguage = 'en';
 
         if (tarteaucitronForceLanguage !== '') {
@@ -2082,7 +2082,13 @@ var tarteaucitron = {
         return elem.getAttribute('height') || elem.clientHeight;
     },
     "getElemAttr": function (elem, attr) {
-        return elem.getAttribute('data-' + attr) || elem.getAttribute(attr);
+        var attribute = elem.getAttribute('data-' + attr) || elem.getAttribute(attr);
+
+        if (typeof attribute === 'string') {
+            return tarteaucitron.fixSelfXSS(attribute);
+        }
+
+        return "";
     },
     "addClickEventToId": function (elemId, func) {
         tarteaucitron.addClickEventToElement(document.getElementById(elemId), func);
